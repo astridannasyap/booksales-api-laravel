@@ -9,10 +9,10 @@
     <h1>Book Genres</h1>
     <p>Ini adalah halaman untuk menampilkan daftar genre buku.</p>
 
-    @foreach ($genres as $item) 
+    @foreach ($genres as $genre) 
     <ul>
-        <li>{{ $item['name'] }}</li>
-        <li>{{ $item['description'] }}</li>
+        <li>{{ $genre['name'] }}</li>
+        <li>{{ $genre['description'] }}</li>
     </ul>
     @endforeach
 </body>

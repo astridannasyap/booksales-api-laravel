@@ -9,11 +9,11 @@
     <h1>Selamat Datang di Halaman Authors</h1>
     <p>Ini adalah halaman untuk menampilkan daftar authors.</p>
 
-    @foreach ($authors as $item) 
+    @foreach ($authors as $author) 
     <ul>
-        <li>{{ $item['name'] }}</li>
-        <li>{{ $item['photo'] }}</li>
-        <li>{{ $item['bio'] }}</li>
+        <li>{{ $author['name'] }}</li>
+        <li>{{ $author['photo'] }}</li>
+        <li>{{ $author['bio'] }}</li>
     </ul>
     @endforeach
 </body>
