@@ -4,20 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Author;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends Controller
 {
-    public function index(){
+    public function index() 
+    {
         $authors = Author::all();
 
-        if($authors->isEmpty()){
+        if ($authors->isEmpty()) {
             return response()->json([
                 "success" => true,
                 "message" => "Resource not found!"
             ], 200);
         }
-        
+
         return response()->json([
             "success" => true,
             "message" => "Get All Resource",
@@ -26,7 +28,8 @@ class AuthorController extends Controller
         ], 200);
     }
 
-     public function store(Request $request){
+    public function store(Request $request)
+    {
         // 1. Validator
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max: 255',
@@ -35,7 +38,7 @@ class AuthorController extends Controller
         ]);
 
         // 2. Check Validator
-        if ($validator ->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 "success" => false,
                 "message" => "Validation Error",
@@ -61,5 +64,104 @@ class AuthorController extends Controller
             "data" => $author
         ], 201);
     }
-}
 
+    public function show($id)
+    {
+        $author = Author::find($id);
+
+        if (!$author) {
+            return response()->json([
+                "success" => false,
+                "message" => "Resource not found!"
+            ], 200);
+        }
+
+        return response()->json([
+            "success" => true,
+            "message" => "Get Detail Resource",
+            "data" => $author
+        ], 200);
+    }
+
+    
+    public function update(string $id, Request $request){
+        // 1. Cari data berdasarkan ID
+        $author = Author::find($id);
+
+        if (!$author) {
+            return response()->json([
+                "success" => false,
+                "message" => "Resource not found!"
+            ], 404);
+        }
+
+        // 2. Validator
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'bio' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                "success" => false,
+                "message" => "Validation Error",
+                "errors" => $validator->errors()
+            ], 422);
+        }
+
+        // 3. Menangani upload gambar baru jika ada
+
+        $data = [
+            'name' => $request->name,
+            'bio' => $request->bio,
+
+        ];
+
+        // 4. Handle image (Upload & delete image)
+        if ($request->hasFile('photo')) {
+            $image = $request->file('photo');
+            $image->store('authors', 'public');
+
+            if ($author->photo) {
+                Storage::disk('public')->delete('authors/' . $author->photo); 
+            }
+
+            $data['photo'] = $image->hashName();
+        }
+
+        // 5. Update data baru ke dalam database
+        $author->update($data);
+
+        // 6. Response
+        return response()->json([
+            "success" => true,
+            "message" => "Resource updated successfully",
+            "data" => $author
+        ], 200);
+
+    }
+
+
+   public function destroy($id){
+        $author = Author::find($id);
+
+        if (!$author) {
+            return response()->json([
+                "success" => false,
+                "message" => "Resource not found!"
+            ], 404);
+        }
+
+        if ($author->photo) {
+            Storage::disk('public')->delete('authors/' . $author->photo); 
+        }
+
+        $author->delete();
+
+        return response()->json([  
+            "success" => true,
+            "message" => "Resource deleted successfully"
+        ], 200);
+    }
+}

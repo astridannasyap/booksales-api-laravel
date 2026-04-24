@@ -57,4 +57,86 @@ class GenreController extends Controller
             "data" => $genre
         ], 201);
     }
+
+     public function show($id){
+        $genre = Genre::find($id);
+
+        if(!$genre){
+            return response()->json([
+                "success" => false,
+                "message" => "Resource not found!"
+            ], 200);
+        }
+
+        return response()->json([
+            "success" => true,
+            "message" => "Get Detail Resource",
+            "data" => $genre
+        ], 200);
+    }
+
+
+    public function update(string $id, Request $request){
+        // 1. Cari data berdasarkan ID
+        $genre = Genre::find($id);
+
+        if (!$genre) {
+            return response()->json([
+                "success" => false,
+                "message" => "Resource not found!"
+            ], 404);
+        }
+
+        // 2. Validator
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                "success" => false,
+                "message" => "Validation Error",
+                "errors" => $validator->errors()
+            ], 422);
+        }
+
+        // 3. Menangani upload gambar baru jika ada
+
+        $data = [
+            'name' => $request->name,
+            'description' => $request->description,
+        ];
+
+        // 5. Update data baru ke dalam database
+        $genre->update($data);
+
+        // 6. Response
+        return response()->json([
+            "success" => true,
+            "message" => "Resource updated successfully",
+            "data" => $genre
+        ], 200);
+
+    }
+
+
+    public function destroy($id){
+        $genre = Genre::find($id);
+
+        if (!$genre) {
+            return response()->json([
+                "success" => false,
+                "message" => "Resource not found!"
+            ], 404);
+        }
+
+        $genre->delete();
+
+        return response()->json([  
+            "success" => true,
+            "message" => "Resource deleted successfully"
+        ], 200);
+    }
+           
 }
