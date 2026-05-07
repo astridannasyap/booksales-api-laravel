@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends Controller
 {
-    public function index() 
+    public function index()
     {
         $authors = Author::all();
 
@@ -53,7 +53,7 @@ class AuthorController extends Controller
         // 4. Insert data
         $author = Author::create([
             'name' => $request->name,
-            'photo' => $image->hashName(),
+            'photo' => $image->getClientOriginalName(),
             'bio' => $request->bio,
         ]);
 
@@ -83,7 +83,7 @@ class AuthorController extends Controller
         ], 200);
     }
 
-    
+
     public function update(string $id, Request $request){
         // 1. Cari data berdasarkan ID
         $author = Author::find($id);
@@ -124,10 +124,10 @@ class AuthorController extends Controller
             $image->store('authors', 'public');
 
             if ($author->photo) {
-                Storage::disk('public')->delete('authors/' . $author->photo); 
+                Storage::disk('public')->delete('authors/' . $author->photo);
             }
 
-            $data['photo'] = $image->hashName();
+            $data['photo'] = $image->getClientOriginalName();
         }
 
         // 5. Update data baru ke dalam database
@@ -154,12 +154,12 @@ class AuthorController extends Controller
         }
 
         if ($author->photo) {
-            Storage::disk('public')->delete('authors/' . $author->photo); 
+            Storage::disk('public')->delete('authors/' . $author->photo);
         }
 
         $author->delete();
 
-        return response()->json([  
+        return response()->json([
             "success" => true,
             "message" => "Resource deleted successfully"
         ], 200);

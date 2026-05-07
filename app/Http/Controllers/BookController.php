@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class BookController extends Controller
@@ -32,7 +32,7 @@ class BookController extends Controller
     public function store(Request $request){
         // 1. Validator
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max: 255',
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
@@ -60,7 +60,7 @@ class BookController extends Controller
             'description' => $request->description,
             'price' => $request->price,
             'stock' => $request->stock,
-            'cover_photo' => $image->hashName(),
+            'cover_photo' => $image->getClientOriginalName(),
             'genre_id' => $request->genre_id,
             'author_id' => $request->author_id,
         ]);
@@ -108,7 +108,7 @@ class BookController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'cover_photo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'genre_id' => 'required|exists:genres,id',
             'author_id' => 'required|exists:authors,id',
         ]);
@@ -139,10 +139,10 @@ class BookController extends Controller
             $image->store('books', 'public');
 
             if ($book->cover_photo) {
-                Storage::disk('public')->delete('books/' . $book->cover_photo); 
+                Storage::disk('public')->delete('books/' . $book->cover_photo);
             }
 
-            $data['cover_photo'] = $image->hashName();
+            $data['cover_photo'] = $image->getClientOriginalName();
         }
 
         // 5. Update data baru ke dalam database
@@ -168,12 +168,12 @@ class BookController extends Controller
         }
 
         if ($book->cover_photo) {
-            Storage::disk('public')->delete('books/' . $book->cover_photo); 
+            Storage::disk('public')->delete('books/' . $book->cover_photo);
         }
 
         $book->delete();
 
-        return response()->json([  
+        return response()->json([
             "success" => true,
             "message" => "Resource deleted successfully"
         ], 200);

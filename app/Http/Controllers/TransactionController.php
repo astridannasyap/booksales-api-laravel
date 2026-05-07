@@ -193,6 +193,28 @@ class TransactionController extends Controller
         ], 200);
     }
 
+    public function myTransactions()
+{
+    $user = auth('api')->user();
+
+    if (!$user) {
+        return response()->json([
+            "success" => false,
+            "message" => "Unauthorized"
+        ], 401);
+    }
+
+    $transactions = Transaction::with('book')
+        ->where('customer_id', $user->id)
+        ->latest()
+        ->get();
+
+    return response()->json([
+        "success" => true,
+        "message" => "Get My Transactions",
+        "data" => $transactions
+    ], 200);
+}
 
     public function destroy(string $id)
     {
